@@ -1,0 +1,29 @@
+{
+    "name": "league/dotry",
+    "description": "Exception handling workflow",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ying Fan Chong",
+            "email": "yingfan@outlook.com"
+        }
+    ],
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "^6.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "League\\DoTry\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "League\\DoTry\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}
