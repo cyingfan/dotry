@@ -1,8 +1,8 @@
 <?php
 
-namespace CYingfan\DoTry\Tests;
+namespace Cyingfan\DoTry\Tests;
 
-use CYingfan\DoTry\DoTry;
+use Cyingfan\DoTry\DoTry;
 use PHPUnit\Framework\TestCase;
 
 class DoTryTest extends TestCase

@@ -1,5 +1,5 @@
 <?php
-namespace CYingfan\DoTry;
+namespace Cyingfan\DoTry;
 
 class DoTry
 {
