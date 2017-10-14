@@ -8,4 +8,4 @@ before_script:
 - travis_retry composer install
 
 script:
-- vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
+- vendor/bin/phpunit

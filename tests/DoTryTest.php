@@ -1,8 +1,8 @@
 <?php
 
-namespace League\DoTry\Tests;
+namespace CYingfan\DoTry\Tests;
 
-use League\DoTry\DoTry;
+use CYingfan\DoTry\DoTry;
 use PHPUnit\Framework\TestCase;
 
 class DoTryTest extends TestCase
@@ -35,6 +35,19 @@ class DoTryTest extends TestCase
 
     /**
      * @test
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Class name must be subclass of Throwable
+     */
+    public function invalidException()
+    {
+        (new DoTry(function () {
+        }))
+            ->catch(\DateTime::class, function () {
+            });
+    }
+
+    /**
+     * @test
      */
     public function noException()
     {
@@ -48,7 +61,8 @@ class DoTryTest extends TestCase
                 \Throwable::class,
                 function () use ($expectedValue) {
                     return $expectedValue - 1;
-                })
+                }
+            )
             ->run($expectedValue);
 
         $this->assertSame($expectedValue, $value);
@@ -70,7 +84,8 @@ class DoTryTest extends TestCase
                 \LogicException::class,
                 function () use ($expectedValue) {
                     return $expectedValue - 1;
-                })
+                }
+            )
             ->run($expectedValue);
 
         $this->assertSame($expectedValue - 1, $value);
@@ -91,7 +106,8 @@ class DoTryTest extends TestCase
             ->catch(
                 \InvalidArgumentException::class,
                 function () use ($expectedValue) {
-                })
+                }
+            )
             ->run($expectedValue);
     }
 
@@ -112,15 +128,44 @@ class DoTryTest extends TestCase
                 \LogicException::class,
                 function () use (&$logicExceptionHandlerCalled) {
                     $logicExceptionHandlerCalled = true;
-                })
+                }
+            )
             ->catch(
                 \Exception::class,
                 function () use (&$exceptionHandlerCalled) {
                     $exceptionHandlerCalled = true;
-                })
+                }
+            )
             ->run($expectedValue);
 
         $this->assertTrue($logicExceptionHandlerCalled);
         $this->assertTrue($exceptionHandlerCalled);
     }
+
+    /**
+     * @test
+     */
+    public function finally()
+    {
+        $expectedValue = mt_rand(1, PHP_INT_MAX);
+        $value = (new DoTry(function () {
+            throw new \Exception();
+        }))
+            ->catch(
+                \Exception::class,
+                function () use (&$exceptionHandlerCalled) {
+                    $exceptionHandlerCalled = true;
+                }
+            )
+            ->finally(function () use (&$finallyHandlerCalled, $expectedValue) {
+                $finallyHandlerCalled = true;
+                return $expectedValue;
+            })
+            ->run();
+
+        $this->assertTrue($exceptionHandlerCalled);
+        $this->assertTrue($finallyHandlerCalled);
+        $this->assertSame($expectedValue, $value);
+    }
+
 }

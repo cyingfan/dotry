@@ -1,5 +1,5 @@
 {
-    "name": "league/dotry",
+    "name": "cyingfan/dotry",
     "description": "Exception handling workflow",
     "type": "library",
     "license": "MIT",
@@ -15,12 +15,12 @@
     },
     "autoload": {
         "psr-4": {
-            "League\\DoTry\\": "src/"
+            "Cyingfan\\DoTry\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "League\\DoTry\\Tests\\": "tests/"
+            "Cyingfan\\DoTry\\Tests\\": "tests/"
         }
     },
     "config": {

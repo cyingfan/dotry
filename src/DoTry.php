@@ -1,7 +1,5 @@
 <?php
-
-namespace League\DoTry;
-
+namespace CYingfan\DoTry;
 
 class DoTry
 {
@@ -43,10 +41,12 @@ class DoTry
 
     /**
      * @param callable $finallyHandler
+     * @return $this
      */
     public function finally(callable $finallyHandler)
     {
         $this->finallyHandler = $finallyHandler;
+        return $this;
     }
 
     /**
@@ -56,6 +56,7 @@ class DoTry
      */
     public function run(...$params)
     {
+        $finalReturnValue = null;
         try {
             return call_user_func_array($this->callable, $params);
         } catch (\Throwable $t) {
@@ -66,7 +67,7 @@ class DoTry
                     $handled = true;
                     $value = call_user_func($exceptionHandler, $t);
                     if (!is_null($value)) {
-                        return $value;
+                        $finalReturnValue =  $value;
                     }
                 }
             }
@@ -76,9 +77,13 @@ class DoTry
         }
         if ($this->finallyHandler !== null) {
             $value = call_user_func($this->finallyHandler);
-            if (!is_null($value)) {
-                return $value;
+
+            //
+            if (!is_null($value) && is_null($finalReturnValue)) {
+                $finalReturnValue = $value;
             }
         }
+
+        return $finalReturnValue;
     }
 }
