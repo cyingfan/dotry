@@ -52,7 +52,7 @@ class DoTryTest extends TestCase
     public function noException()
     {
         $expectedValue = mt_rand(1, PHP_INT_MAX);
-        $value = (new DoTry(
+        $returnValues = (new DoTry(
             function ($expectedValue) {
                 return $expectedValue;
             }
@@ -65,7 +65,8 @@ class DoTryTest extends TestCase
             )
             ->run($expectedValue);
 
-        $this->assertSame($expectedValue, $value);
+        $this->assertSame($expectedValue, $returnValues->getExecutionValue());
+        $this->assertSame($expectedValue, $returnValues->getValue());
     }
 
     /**
@@ -74,7 +75,7 @@ class DoTryTest extends TestCase
     public function withExceptionHandled()
     {
         $expectedValue = mt_rand(1, PHP_INT_MAX);
-        $value = (new DoTry(
+        $returnValues = (new DoTry(
             function ($expectedValue) {
                 throw new \LogicException("Bad logic");
                 return $expectedValue;
@@ -88,7 +89,10 @@ class DoTryTest extends TestCase
             )
             ->run($expectedValue);
 
-        $this->assertSame($expectedValue - 1, $value);
+        $exceptionValues = $returnValues->getExceptionValues();
+        $this->arrayHasKey(\LogicException::class, $exceptionValues);
+        $this->assertSame($expectedValue - 1, $exceptionValues[\LogicException::class][0]);
+        $this->assertSame($expectedValue - 1, $returnValues->getValue());
     }
 
     /**
@@ -148,7 +152,7 @@ class DoTryTest extends TestCase
     public function finally()
     {
         $expectedValue = mt_rand(1, PHP_INT_MAX);
-        $value = (new DoTry(function () {
+        $returnValues = (new DoTry(function () {
             throw new \Exception();
         }))
             ->catch(
@@ -165,7 +169,9 @@ class DoTryTest extends TestCase
 
         $this->assertTrue($exceptionHandlerCalled);
         $this->assertTrue($finallyHandlerCalled);
-        $this->assertSame($expectedValue, $value);
+
+        $this->assertSame($expectedValue, $returnValues->getFinallyValue());
+        $this->assertSame($expectedValue, $returnValues->getValue());
     }
 
 }

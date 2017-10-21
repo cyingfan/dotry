@@ -1,4 +1,5 @@
 <?php
+
 namespace Cyingfan\DoTry;
 
 class DoTry
@@ -15,6 +16,10 @@ class DoTry
      * @var callable
      */
     protected $finallyHandler;
+    /**
+     * @var ReturnValues
+     */
+    protected $returnValues;
 
     /**
      * DoTry constructor.
@@ -23,6 +28,7 @@ class DoTry
     public function __construct(callable $callable)
     {
         $this->callable = $callable;
+        $this->returnValues = new ReturnValues();
     }
 
     /**
@@ -51,39 +57,50 @@ class DoTry
 
     /**
      * @param array ...$params
-     * @return mixed
+     * @return ReturnValues
      * @throws \Throwable
      */
     public function run(...$params)
     {
         $finalReturnValue = null;
+        $unhandledException = null;
         try {
-            return call_user_func_array($this->callable, $params);
+            $this->returnValues->setExecutionValue(
+                call_user_func_array($this->callable, $params)
+            );
         } catch (\Throwable $t) {
             $handled = false;
             foreach ($this->exceptionHandlers as $catch) {
                 list($exceptionClass, $exceptionHandler) = $catch;
                 if (is_a($t, $exceptionClass)) {
                     $handled = true;
-                    $value = call_user_func($exceptionHandler, $t);
-                    if (!is_null($value)) {
-                        $finalReturnValue =  $value;
-                    }
+                    $this->returnValues->addExceptionValues(
+                        get_class($t),
+                        call_user_func($exceptionHandler, $t)
+                    );
                 }
             }
             if (!$handled) {
-                throw $t;
+                $unhandledException = $t;
             }
         }
         if ($this->finallyHandler !== null) {
-            $value = call_user_func($this->finallyHandler);
-
-            //
-            if (!is_null($value) && is_null($finalReturnValue)) {
-                $finalReturnValue = $value;
-            }
+            $this->returnValues->setFinallyValue(
+                call_user_func($this->finallyHandler)
+            );
+        }
+        if ($unhandledException !== null) {
+            throw $unhandledException;
         }
 
-        return $finalReturnValue;
+        return $this->returnValues;
+    }
+
+    public function retry(int $times)
+    {
+        if ($times < 1) {
+            throw new \InvalidArgumentException("Retry must be at least 1");
+        }
+        // TODO
     }
 }
